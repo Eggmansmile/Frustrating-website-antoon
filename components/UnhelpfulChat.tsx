@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { getUnhelpfulResponse } from '../services/geminiService';
 
 export const UnhelpfulChat: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,7 +24,15 @@ export const UnhelpfulChat: React.FC = () => {
     setMessages(prev => [...prev, { role: 'user', text: userText }]);
     setIsTyping(true);
 
-    const botResponse = await getUnhelpfulResponse(userText);
+    // Simulate unhelpful response
+    const unhelpfulResponses = [
+      "Error 418: I'm a teapot. I cannot comply.",
+      "Have you tried turning your house off and on again?",
+      "You need to fill out Form 27B/6 first (which doesn't exist).",
+      "I'm sorry, I couldn't process that request because the wind is blowing east.",
+      "That's not a supported operation. Please contact support (support hotline is closed permanently)."
+    ];
+    const botResponse = unhelpfulResponses[Math.floor(Math.random() * unhelpfulResponses.length)];
     
     setIsTyping(false);
     setMessages(prev => [...prev, { role: 'bot', text: botResponse }]);

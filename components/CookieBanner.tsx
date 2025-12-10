@@ -15,7 +15,7 @@ export const CookieBanner: React.FC = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-8 z-40 flex flex-col items-center justify-center gap-4 opacity-95">
+    <div className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-8 z-30 flex flex-col items-center justify-center gap-4 opacity-95">
       <h3 className="text-2xl font-bold text-pain-yellow blink">WE VALUE YOUR PRIVACY (NOT REALLY)</h3>
       <p className="text-center max-w-2xl">
         We use cookies to ensure you have the most frustrating experience possible. 
