@@ -175,7 +175,7 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
           setTimeout(() => {
             setShowCriticalError(false);
           }, 3000);
-        }, 14000);
+        }, 4000);
       }
       // 30% chance to require another verification after this one
       else if (Math.random() > 0.7 && verificationCount < 2) {
@@ -187,14 +187,14 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
           setCaptchasRequired(Math.floor(Math.random() * 2) + 1); // 1-2 more CAPTCHAs
           setCaptchasCompleted(0);
           setShouldShowWaitMessage(true);
-        }, 14000);
+        }, 4000);
       } else {
         // Show verification, then start loading (and it will complete uninterrupted)
         setShowVerification(true);
         setTimeout(() => {
           setShowVerification(false);
           startLoading();
-        }, 14000);
+        }, 4000);
       }
     } else {
       // More CAPTCHAs required

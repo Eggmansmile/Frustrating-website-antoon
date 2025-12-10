@@ -33,11 +33,11 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isVisible,
         });
         checkIndex++;
       } else {
-        // Wait 2 more seconds before closing (shows all results)
-        setTimeout(onClose, 2000);
+        // Close immediately after all checks complete
+        onClose();
         clearInterval(interval);
       }
-    }, 1200); // Each check takes 1.2 seconds
+    }, 400); // Each check takes only 400ms (was 1200ms)
 
     return () => clearInterval(interval);
   }, [isVisible, onClose]);
