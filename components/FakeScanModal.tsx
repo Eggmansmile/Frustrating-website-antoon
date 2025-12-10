@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 interface FakeScanModalProps {
   isVisible: boolean;
@@ -6,7 +6,7 @@ interface FakeScanModalProps {
 }
 
 export const FakeScanModal: React.FC<FakeScanModalProps> = ({ isVisible, onComplete }) => {
-  const scanItems = [
+  const scanItems = useMemo(() => [
     "🔍 Scanning system files...",
     "🔍 Initializing deep scan... 0%",
     "⚠️  WARNING: Unauthorized access detected!",
@@ -41,7 +41,7 @@ export const FakeScanModal: React.FC<FakeScanModalProps> = ({ isVisible, onCompl
     "✅ Scan 99% complete...",
     "⚠️  One more thing... your computer doesn't like you",
     "✅ Scan complete! All systems: FINE (definitely not broken)",
-  ];
+  ], []);
 
   const [displayedItems, setDisplayedItems] = useState<string[]>([]);
 
@@ -66,7 +66,7 @@ export const FakeScanModal: React.FC<FakeScanModalProps> = ({ isVisible, onCompl
     }, 200); // Each item appears every 200ms for consistent pacing
 
     return () => clearInterval(interval);
-  }, [isVisible, onComplete, scanItems]);
+  }, [isVisible, onComplete]);
 
   if (!isVisible) return null;
 
