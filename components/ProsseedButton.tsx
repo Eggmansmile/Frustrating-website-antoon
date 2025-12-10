@@ -22,6 +22,7 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
   const [showVerification, setShowVerification] = useState(false);
   const [verificationCount, setVerificationCount] = useState(0);
   const [requiresAction, setRequiresAction] = useState(true);
+  const [showCriticalError, setShowCriticalError] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Randomly move button on hover sometimes
@@ -39,8 +40,9 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
   const startLoading = () => {
     setIsLoading(true);
     setLabel("Prosseeding...");
+    setShowCriticalError(false);
     
-    // Start fake loading with random behavior
+    // Start fake loading with random behavior - UNINTERRUPTIBLE
     let progress = 0;
     let stuckCount = 0;
     const interval = setInterval(() => {
@@ -86,9 +88,10 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
         progress = 100;
         clearInterval(interval);
         
-        // Show video instead of reloading
+        // Show video instead of reloading - LOADING COMPLETES SUCCESSFULLY
         setTimeout(() => {
             setShowVideo(true);
+            setIsLoading(false);
         }, 1500);
       }
       
@@ -158,8 +161,24 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
       setShouldShowWaitMessage(false);
       setVerificationCount(prev => prev + 1);
       
+      // 20% chance for critical error after verification
+      if (Math.random() > 0.8) {
+        // Show verification, then critical error
+        setShowVerification(true);
+        setTimeout(() => {
+          setShowVerification(false);
+          setShowCriticalError(true);
+          setIsLoading(false);
+          setLoadingPercent(0);
+          setLabel("Prosseed");
+          // Critical error stays for 3 seconds, then disappears
+          setTimeout(() => {
+            setShowCriticalError(false);
+          }, 3000);
+        }, 14000);
+      }
       // 30% chance to require another verification after this one
-      if (Math.random() > 0.7 && verificationCount < 2) {
+      else if (Math.random() > 0.7 && verificationCount < 2) {
         // Show verification, then repeat
         setShowVerification(true);
         setTimeout(() => {
@@ -168,14 +187,14 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
           setCaptchasRequired(Math.floor(Math.random() * 2) + 1); // 1-2 more CAPTCHAs
           setCaptchasCompleted(0);
           setShouldShowWaitMessage(true);
-        }, 14000); // 14 seconds for verification to complete
+        }, 14000);
       } else {
-        // Show verification, then start loading
+        // Show verification, then start loading (and it will complete uninterrupted)
         setShowVerification(true);
         setTimeout(() => {
           setShowVerification(false);
           startLoading();
-        }, 14000); // 14 seconds for verification to complete (10 checks * 1.2 seconds)
+        }, 14000);
       }
     } else {
       // More CAPTCHAs required
@@ -202,6 +221,21 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
         onClose={() => setShowVerification(false)}
       />
       {showVideo && <VideoModal />}
+      
+      {/* Critical Error Modal */}
+      {showCriticalError && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-red-900 border-8 border-red-600 p-8 rounded-lg w-96 text-center">
+            <div className="text-6xl mb-4 animate-pulse">🚨</div>
+            <h2 className="text-3xl font-bold text-red-100 mb-2">CRITICAL ERROR</h2>
+            <p className="text-white text-lg font-bold mb-2">SYSTEM FAILURE DETECTED</p>
+            <p className="text-red-200 mb-4">All your progress has been lost.</p>
+            <p className="text-sm text-red-300">Error Code: 0xDEADBEEF</p>
+            <p className="text-xs text-red-400 mt-2">Please try again...</p>
+          </div>
+        </div>
+      )}
+      
       <button
         ref={buttonRef}
         onMouseEnter={handleHover}
