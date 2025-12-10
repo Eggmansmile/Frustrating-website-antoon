@@ -15,7 +15,11 @@ interface Confetti {
   duration: number;
 }
 
-export const VideoModal: React.FC = () => {
+interface VideoModalProps {
+  onClose?: () => void;
+}
+
+export const VideoModal: React.FC<VideoModalProps> = ({ onClose }) => {
   const [cats, setCats] = useState<CatPosition[]>([
     { id: 0, x: 0, y: 0, direction: 1 },
     { id: 1, x: 100, y: 100, direction: -1 },
@@ -162,7 +166,10 @@ export const VideoModal: React.FC = () => {
         </div>
 
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => {
+            onClose?.();
+            window.location.reload();
+          }}
           className="w-full mt-4 bg-eye-green text-black font-bold py-3 px-4 rounded-lg hover:bg-green-400 transition-all text-lg border-4 border-black active:scale-95"
         >
           👎 Do It All Again (Why Would You?)

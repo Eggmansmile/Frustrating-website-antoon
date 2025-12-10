@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { CaptchaModal } from './CaptchaModal';
 import { VideoModal } from './VideoModal';
 import { VerificationModal } from './VerificationModal';
+import { FakeScanModal } from './FakeScanModal';
 
 interface ProsseedButtonProps {
   onProsseedAttempt: () => void;
@@ -23,17 +24,56 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
   const [verificationCount, setVerificationCount] = useState(0);
   const [requiresAction, setRequiresAction] = useState(true);
   const [showCriticalError, setShowCriticalError] = useState(false);
+  const [showScan, setShowScan] = useState(false);
+  const [buttonTired, setButtonTired] = useState(false);
+  const [escapeAttempts, setEscapeAttempts] = useState(0);
+  const [progressStage, setProgressStage] = useState(0);
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // Handle critical error reset after 3 seconds
+  useEffect(() => {
+    if (showCriticalError) {
+      const timer = setTimeout(() => {
+        setShowCriticalError(false);
+        // Reset button state
+        setPosition({ x: 0, y: 0 });
+        setEscapeAttempts(0);
+        setButtonTired(false);
+        setLabel("Prosseed");
+        setIsLoading(false);
+        setLoadingPercent(0);
+        setCaptchasCompleted(0);
+        setCaptchasRequired(0);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showCriticalError]);
 
   // Randomly move button on hover sometimes
   const handleHover = () => {
     setHoverCount(prev => prev + 1);
     
-    // 50% chance to move away
-    if (Math.random() > 0.5) {
-      const xOffset = (Math.random() - 0.5) * 300; // Move up to 150px
-      const yOffset = (Math.random() - 0.5) * 300;
+    // Button becomes tired after 6 escape attempts
+    if (buttonTired) {
+      return; // Button has given up
+    }
+    
+    // Button escapes, with increasing frequency
+    const escapeChance = Math.min(0.95, 0.4 + escapeAttempts * 0.1); // 40% -> 95% as escapeAttempts increases
+    if (Math.random() < escapeChance) {
+      setEscapeAttempts(prev => prev + 1);
+      
+      // Calculate movement distance (decreases as button gets tired)
+      const maxDistance = Math.max(50, 300 - escapeAttempts * 30); // 300px -> 120px as it tires
+      const xOffset = (Math.random() - 0.5) * maxDistance;
+      const yOffset = (Math.random() - 0.5) * maxDistance;
       setPosition({ x: xOffset, y: yOffset });
+      
+      // After 6 escape attempts, button gets too tired
+      if (escapeAttempts >= 6) {
+        setButtonTired(true);
+        setLabel("😴 I give up...");
+      }
     }
   };
 
@@ -42,61 +82,55 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
     setLabel("Prosseeding...");
     setShowCriticalError(false);
     
-    // Start fake loading with random behavior - UNINTERRUPTIBLE
+    // MUCH SHORTER loading - only takes 8-12 seconds instead of 30-60
     let progress = 0;
     let stuckCount = 0;
     const interval = setInterval(() => {
       const randomBehavior = Math.random();
       
-      // 8% chance to reset to 0 (more punishing)
-      if (randomBehavior < 0.08) {
-        progress = 0;
+      // 5% chance to reset (less punishing)
+      if (randomBehavior < 0.05) {
+        progress = Math.max(0, progress - 30);
       }
-      // 12% chance to jump backwards
-      else if (randomBehavior < 0.20) {
-        progress -= Math.random() * 20;
+      // 8% chance to jump backwards
+      else if (randomBehavior < 0.13) {
+        progress -= Math.random() * 10;
         if (progress < 0) progress = 0;
       }
-      // 18% chance to jump forward
-      else if (randomBehavior < 0.38) {
-        progress += Math.random() * 20;
+      // 15% chance to jump forward
+      else if (randomBehavior < 0.28) {
+        progress += Math.random() * 15;
       }
-      // 12% chance to get stuck
-      else if (randomBehavior < 0.50) {
+      // 8% chance to get stuck
+      else if (randomBehavior < 0.36) {
         stuckCount++;
-        if (stuckCount > 8) {
+        if (stuckCount > 5) {
           stuckCount = 0;
         }
-        // progress doesn't change
       }
-      // Normal increment
+      // Normal increment (much faster)
       else {
-        progress += Math.random() * 2.5;
+        progress += Math.random() * 4;
       }
       
-      // Make it very hard to reach 100%
+      // Still hard but reachable
       if (progress > 95) {
         progress = Math.min(progress, 98);
-      }
-      
-      // 3% chance to reset everything after 50%
-      if (progress > 50 && Math.random() < 0.03) {
-        progress = 0;
       }
       
       if (progress >= 99) {
         progress = 100;
         clearInterval(interval);
         
-        // Show video instead of reloading - LOADING COMPLETES SUCCESSFULLY
+        // Show video - loading completes quickly
         setTimeout(() => {
             setShowVideo(true);
             setIsLoading(false);
-        }, 1500);
+        }, 800);
       }
       
       setLoadingPercent(Math.floor(progress));
-    }, 300);
+    }, 150);
   };
 
   const handleClick = () => {
@@ -125,30 +159,22 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
       "CRITICAL: The cake is a lie.",
     ];
 
-    // Extremely aggressive annoying prompts (60% chance now)
-    if (Math.random() > 0.4) {
+    // Stage 0: Annoying prompts and CAPTCHAs
+    if (progressStage === 0) {
+      // 50% chance to block with annoying prompt
+      if (Math.random() > 0.5) {
         const randomPrompt = annoyingPrompts[Math.floor(Math.random() * annoyingPrompts.length)];
         alert(randomPrompt);
         return;
-    }
+      }
 
-    // Determine number of CAPTCHAs required (2-4 now, more than before)
-    const requiredCaptchas = Math.floor(Math.random() * 3) + 2; // 2-4
-    
-    // Only 5% chance to actually start loading (reduced from 10%)
-    if (Math.random() > 0.05) {
-      // Show CAPTCHA instead
-      setCaptchasRequired(requiredCaptchas);
+      // Start 3 CAPTCHAs (guaranteed first step)
+      setCaptchasRequired(3);
       setCaptchasCompleted(0);
       setShowCaptcha(true);
       setShouldShowWaitMessage(true);
       return;
     }
-
-    // Even if we get past CAPTCHAs, we need verification
-    setRequiresAction(true);
-    setShowCaptcha(false);
-    setShouldShowWaitMessage(false);
   };
 
   const handleCaptchaSuccess = () => {
@@ -156,52 +182,44 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
     setCaptchasCompleted(newCompleted);
 
     if (newCompleted >= captchasRequired) {
-      // All CAPTCHAs done, ALWAYS show verification before loading
+      // All CAPTCHAs done, move to next stage
       setShowCaptcha(false);
       setShouldShowWaitMessage(false);
-      setVerificationCount(prev => prev + 1);
-      
-      // 20% chance for critical error after verification
-      if (Math.random() > 0.8) {
-        // Show verification, then critical error
-        setShowVerification(true);
-        setTimeout(() => {
-          setShowVerification(false);
-          setShowCriticalError(true);
-          setIsLoading(false);
-          setLoadingPercent(0);
-          setLabel("Prosseed");
-          // Critical error stays for 3 seconds, then disappears
-          setTimeout(() => {
-            setShowCriticalError(false);
-          }, 3000);
-        }, 4000);
-      }
-      // 30% chance to require another verification after this one
-      else if (Math.random() > 0.7 && verificationCount < 2) {
-        // Show verification, then repeat
-        setShowVerification(true);
-        setTimeout(() => {
-          setShowVerification(false);
-          setShowCaptcha(true);
-          setCaptchasRequired(Math.floor(Math.random() * 2) + 1); // 1-2 more CAPTCHAs
-          setCaptchasCompleted(0);
-          setShouldShowWaitMessage(true);
-        }, 4000);
-      } else {
-        // Show verification, then start loading (and it will complete uninterrupted)
-        setShowVerification(true);
-        setTimeout(() => {
-          setShowVerification(false);
-          startLoading();
-        }, 4000);
-      }
+      setProgressStage(1);
+      setShowScan(true);
     } else {
       // More CAPTCHAs required
       setShowCaptcha(false);
       setTimeout(() => {
         setShowCaptcha(true);
       }, 100);
+    }
+  };
+
+  const handleScanComplete = () => {
+    setShowScan(false);
+    // Move to verification stage
+    setProgressStage(2);
+    setShowVerification(true);
+  };
+
+  const handleVerificationComplete = () => {
+    setShowVerification(false);
+    
+    // 25% chance for critical error (guaranteed element)
+    if (Math.random() < 0.25) {
+      setProgressStage(3);
+      setShowCriticalError(true);
+      // After 3 seconds, move to loading
+      setTimeout(() => {
+        setShowCriticalError(false);
+        setProgressStage(4);
+        startLoading();
+      }, 3000);
+    } else {
+      // Move to loading
+      setProgressStage(4);
+      startLoading();
     }
   };
 
@@ -218,9 +236,24 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
       )}
       <VerificationModal
         isVisible={showVerification}
-        onClose={() => setShowVerification(false)}
+        onClose={handleVerificationComplete}
       />
-      {showVideo && <VideoModal />}
+      <FakeScanModal
+        isVisible={showScan}
+        onComplete={handleScanComplete}
+      />
+      {showVideo && (
+        <VideoModal
+          onClose={() => {
+            setShowVideo(false);
+            // Reset button state for "Do It Again"
+            setPosition({ x: 0, y: 0 });
+            setEscapeAttempts(0);
+            setButtonTired(false);
+            setLabel("Prosseed");
+          }}
+        />
+      )}
       
       {/* Critical Error Modal */}
       {showCriticalError && (
