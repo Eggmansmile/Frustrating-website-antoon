@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prosseed to Continue</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Lobster&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'pain-yellow': '#ffff00',
+              'hurt-pink': '#ff00ff',
+              'eye-green': '#00ff00',
+            },
+            fontFamily: {
+              comic: ['"Comic Neue"', 'cursive'],
+              fancy: ['"Lobster"', 'cursive'],
+            },
+            animation: {
+              'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
+              'spin-slow': 'spin 3s linear infinite',
+              'bounce-fast': 'bounce 0.3s infinite',
+            },
+            keyframes: {
+              shake: {
+                '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },
+                '20%, 80%': { transform: 'translate3d(2px, 0, 0)' },
+                '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' },
+                '40%, 60%': { transform: 'translate3d(4px, 0, 0)' }
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        body {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewport="0 0 100 100" style="fill:red;font-size:24px;"><text y="50%">⏳</text></svg>') 16 0, auto; /* Perpetual loading cursor */
+        }
+        .no-select {
+            user-select: none;
+        }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.1/",
+    "react/": "https://esm.sh/react@^19.2.1/",
+    "react": "https://esm.sh/react@^19.2.1",
+    "@google/genai": "https://esm.sh/@google/genai@^1.32.0"
+  }
+}
+</script>
+</head>
+  <body class="bg-pain-yellow font-comic overflow-x-hidden">
+    <div id="root"></div>
+  </body>
+</html>
