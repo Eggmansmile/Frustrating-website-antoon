@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface FakeScanModalProps {
   isVisible: boolean;
@@ -6,99 +6,83 @@ interface FakeScanModalProps {
 }
 
 export const FakeScanModal: React.FC<FakeScanModalProps> = ({ isVisible, onComplete }) => {
-  const SCAN_ITEMS = [
-    "🔍 Scanning system files...",
-    "🔍 Initializing deep scan... 0%",
-    "⚠️  WARNING: Unauthorized access detected!",
-    "🔍 Scanning browser history... 47 embarrassing searches found",
-    "⚠️  CRITICAL: Malware detected in sector 7",
-    "🔍 Checking for spyware... 12 potential threats identified",
-    "🔍 Optimizing performance... freeing up 0 MB",
-    "⚠️  ERROR: Cannot allocate memory (you don't have any)",
-    "🔍 Analyzing click patterns... SUSPICIOUS ACTIVITY DETECTED",
-    "🔍 Running system diagnostics... keyboard is worn",
-    "⚠️  WARNING: Your password is 'password'",
-    "🔍 Checking CPU temperature... OVERHEATING DETECTED (47°C is normal but we'll say it's bad)",
-    "🔍 Scanning for trojans... installing trojans...",
-    "⚠️  ALERT: Verifying user authenticity... FAILED (you are not who you think you are)",
-    "🔍 Checking disk space... you have negative space",
-    "⚠️  WARNING: Your trash bin is sentient",
-    "🔍 Analyzing user behavior... you seem frustrated",
-    "🔍 Scanning for viruses... found 1 (your frustration)",
-    "⚠️  CRITICAL: Your RAM is tired",
-    "🔍 Checking internet connection... yes, it exists",
-    "🔍 Validating system files... 1,847 corrupted (just kidding)",
-    "⚠️  Checking antivirus status... COMPROMISED",
-    "🔍 Scanning boot sectors... found ancient boot",
-    "⚠️  Your files are sleeping",
-    "🔍 Deep scanning... 25% complete",
-    "🔍 Deep scanning... 50% complete",
-    "🔍 Analyzing metadata... found your secrets",
-    "⚠️  Your browser cookies are stale",
-    "🔍 Scanning for backdoors... found one in your heart",
-    "⚠️  WARNING: Someone is watching you. It's me.",
-    "🔍 Running final checks... almost there",
-    "✅ Scan 99% complete...",
-    "⚠️  One more thing... your computer doesn't like you",
-    "✅ Scan complete! All systems: FINE (definitely not broken)",
-  ];
-
-  const [displayedItems, setDisplayedItems] = useState<string[]>([]);
-  const itemIndexRef = useRef(0);
+  const [scanProgress, setScanProgress] = useState(0);
 
   useEffect(() => {
     if (!isVisible) {
-      setDisplayedItems([]);
-      itemIndexRef.current = 0;
+      setScanProgress(0);
       return;
     }
 
-    // Reset index when becoming visible
-    itemIndexRef.current = 0;
-    setDisplayedItems([]);
-
-    // Add each item one by one with a timeout
-    const addNextItem = (index: number) => {
-      if (index < SCAN_ITEMS.length) {
-        setDisplayedItems((prev) => [...prev, SCAN_ITEMS[index]]);
-        setTimeout(() => {
-          addNextItem(index + 1);
-        }, 200);
+    setScanProgress(0);
+    let progress = 0;
+    
+    // Scan takes ~7 seconds with chaotic progress
+    const interval = setInterval(() => {
+      const randomBehavior = Math.random();
+      
+      if (randomBehavior < 0.1) {
+        // 10% chance to jump backward
+        progress = Math.max(0, progress - Math.random() * 5);
+      } else if (randomBehavior < 0.2) {
+        // 10% chance to jump forward
+        progress += Math.random() * 8;
       } else {
-        // All items added, call onComplete after brief delay
+        // 80% normal progress
+        progress += Math.random() * 3;
+      }
+      
+      // Cap at 98 until we're ready to complete
+      if (progress > 98) {
+        progress = 98;
+      }
+      
+      setScanProgress(Math.floor(progress));
+      
+      // Complete after 7 seconds
+      if (progress >= 98) {
+        clearInterval(interval);
+        setScanProgress(100);
         setTimeout(() => {
           onComplete();
         }, 500);
       }
-    };
+    }, 200);
 
-    addNextItem(0);
+    return () => clearInterval(interval);
   }, [isVisible, onComplete]);
 
   if (!isVisible) return null;
 
+  const scanMessages = [
+    "🔍 Initializing scan...",
+    "🔍 Scanning system files...",
+    "⚠️  Checking security...",
+    "🔍 Analyzing data...",
+    "⚠️  Running diagnostics...",
+  ];
+
+  const currentMessage = scanMessages[Math.floor((scanProgress / 100) * (scanMessages.length - 1))];
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40">
-      <div className="bg-gray-900 border-4 border-eye-green p-6 rounded font-mono text-eye-green w-full max-w-md max-h-screen overflow-y-auto shadow-2xl">
-        <div className="text-center font-bold mb-4 text-lg animate-pulse">
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40 pointer-events-none">
+      <div className="bg-gray-900 border-4 border-eye-green p-8 rounded font-mono text-eye-green w-full max-w-sm text-center shadow-2xl">
+        <div className="text-lg font-bold animate-pulse mb-6">
           ⚙️ SYSTEM DIAGNOSTIC SCAN ⚙️
         </div>
-        <div className="space-y-2">
-          {displayedItems.map((item, index) => (
-            <div key={index} className="text-xs p-2 rounded bg-gray-800 animate-pulse break-words">
-              {item}
-            </div>
-          ))}
-          {displayedItems.length > 0 && displayedItems.length < SCAN_ITEMS.length && (
-            <div className="text-xs p-2 rounded bg-gray-800 animate-bounce">
-              &gt; _
-            </div>
-          )}
+        
+        <div className="mb-4">
+          <div className="text-sm mb-2">{currentMessage}</div>
+          <div className="w-full bg-gray-800 border-2 border-eye-green h-8 rounded overflow-hidden">
+            <div 
+              className="h-full bg-eye-green transition-all duration-200"
+              style={{ width: `${scanProgress}%` }}
+            ></div>
+          </div>
         </div>
-        <div className="mt-4 text-xs text-red-500 animate-pulse text-center p-2 bg-gray-800 rounded">
-          {displayedItems.length < SCAN_ITEMS.length 
-            ? `Scanning... ${Math.floor((displayedItems.length / SCAN_ITEMS.length) * 100)}%`
-            : 'Scan complete!'}
+        
+        <div className="text-xs text-red-400 animate-pulse">
+          {scanProgress < 100 ? `Scanning... ${scanProgress}%` : 'Scan complete!'}
         </div>
       </div>
     </div>

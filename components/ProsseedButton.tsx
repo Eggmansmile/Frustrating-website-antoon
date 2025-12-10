@@ -263,8 +263,8 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
       
       {/* Critical Error Modal */}
       {showCriticalError && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-red-900 border-8 border-red-600 p-8 rounded-lg w-96 text-center">
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 pointer-events-none">
+          <div className="bg-red-900 border-8 border-red-600 p-8 rounded-lg w-96 text-center pointer-events-auto">
             <div className="text-6xl mb-4 animate-pulse">🚨</div>
             <h2 className="text-3xl font-bold text-red-100 mb-2">CRITICAL ERROR</h2>
             <p className="text-white text-lg font-bold mb-2">SYSTEM FAILURE DETECTED</p>
