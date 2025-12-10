@@ -23,7 +23,10 @@ export const CookieBanner: React.FC = () => {
       </p>
       <div className="flex gap-6 mt-2 relative w-full justify-center h-12">
         <button 
-          onClick={() => alert("Great choice! We have now installed 100 toolbars.")}
+          onClick={() => {
+            alert("Great choice! We have now installed 100 toolbars.");
+            setIsVisible(false);
+          }}
           className="bg-green-500 px-4 py-1 rounded text-sm font-bold hover:bg-green-600 h-8"
         >
           Accept All Cookies 🍪

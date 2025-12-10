@@ -63,8 +63,14 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
     if (Math.random() < escapeChance) {
       setEscapeAttempts(prev => prev + 1);
       
-      // Calculate movement distance (decreases as button gets tired)
-      const maxDistance = Math.max(50, 300 - escapeAttempts * 30); // 300px -> 120px as it tires
+      // Calculate movement distance (increases initially, then decreases as button gets tired)
+      // Starts at 400px, grows to 500px at attempt 3, then shrinks to 100px by attempt 6
+      let maxDistance = 400 + (escapeAttempts * 30); // 400 -> 580 as it panics
+      if (escapeAttempts > 3) {
+        maxDistance = 500 - ((escapeAttempts - 3) * 80); // 500 -> 260 as it tires
+      }
+      maxDistance = Math.max(80, maxDistance); // Minimum 80px
+      
       const xOffset = (Math.random() - 0.5) * maxDistance;
       const yOffset = (Math.random() - 0.5) * maxDistance;
       setPosition({ x: xOffset, y: yOffset });

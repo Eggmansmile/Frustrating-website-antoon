@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface FakeScanModalProps {
   isVisible: boolean;
@@ -6,7 +6,7 @@ interface FakeScanModalProps {
 }
 
 export const FakeScanModal: React.FC<FakeScanModalProps> = ({ isVisible, onComplete }) => {
-  const scanItems = useMemo(() => [
+  const SCAN_ITEMS = [
     "🔍 Scanning system files...",
     "🔍 Initializing deep scan... 0%",
     "⚠️  WARNING: Unauthorized access detected!",
@@ -41,56 +41,63 @@ export const FakeScanModal: React.FC<FakeScanModalProps> = ({ isVisible, onCompl
     "✅ Scan 99% complete...",
     "⚠️  One more thing... your computer doesn't like you",
     "✅ Scan complete! All systems: FINE (definitely not broken)",
-  ], []);
+  ];
 
   const [displayedItems, setDisplayedItems] = useState<string[]>([]);
+  const itemIndexRef = useRef(0);
 
   useEffect(() => {
     if (!isVisible) {
       setDisplayedItems([]);
+      itemIndexRef.current = 0;
       return;
     }
 
-    let itemIndex = 0;
-    const interval = setInterval(() => {
-      if (itemIndex < scanItems.length) {
-        setDisplayedItems((prev) => [...prev, scanItems[itemIndex]]);
-        itemIndex++;
+    // Reset index when becoming visible
+    itemIndexRef.current = 0;
+    setDisplayedItems([]);
+
+    // Add each item one by one with a timeout
+    const addNextItem = (index: number) => {
+      if (index < SCAN_ITEMS.length) {
+        setDisplayedItems((prev) => [...prev, SCAN_ITEMS[index]]);
+        setTimeout(() => {
+          addNextItem(index + 1);
+        }, 200);
       } else {
-        clearInterval(interval);
-        // Complete after scan is done
+        // All items added, call onComplete after brief delay
         setTimeout(() => {
           onComplete();
         }, 500);
       }
-    }, 200); // Each item appears every 200ms for consistent pacing
+    };
 
-    return () => clearInterval(interval);
+    addNextItem(0);
   }, [isVisible, onComplete]);
 
   if (!isVisible) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40 pointer-events-none">
-      <div className="bg-gray-900 border-4 border-eye-green p-6 rounded font-mono text-eye-green w-96 h-96 overflow-y-auto shadow-2xl">
-        <div className="text-center font-bold mb-4 text-lg animate-pulse">
+      <div className="bg-gray-900 border-4 border-eye-green p-6 rounded font-mono text-eye-green w-2xl max-h-96 overflow-y-auto shadow-2xl flex flex-col">
+        <div className="text-center font-bold mb-4 text-lg animate-pulse flex-shrink-0">
           ⚙️ SYSTEM DIAGNOSTIC SCAN ⚙️
         </div>
-        <div className="space-y-1 text-sm">
+        <div className="space-y-1 text-sm flex-1 overflow-y-auto min-h-0 pr-2">
           {displayedItems.map((item, index) => (
-            <div key={index} className="animate-pulse">
+            <div key={index} className="animate-pulse break-words">
               {item}
             </div>
           ))}
-          {displayedItems.length > 0 && displayedItems.length < scanItems.length && (
+          {displayedItems.length > 0 && displayedItems.length < SCAN_ITEMS.length && (
             <div className="text-sm animate-bounce">
               &gt; _
             </div>
           )}
         </div>
-        <div className="mt-4 text-xs text-red-500 animate-pulse text-center">
-          {displayedItems.length < scanItems.length 
-            ? `Scanning... ${Math.floor((displayedItems.length / scanItems.length) * 100)}%`
+        <div className="mt-4 text-xs text-red-500 animate-pulse text-center flex-shrink-0">
+          {displayedItems.length < SCAN_ITEMS.length 
+            ? `Scanning... ${Math.floor((displayedItems.length / SCAN_ITEMS.length) * 100)}%`
             : 'Scan complete!'}
         </div>
       </div>
