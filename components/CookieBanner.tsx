@@ -32,8 +32,7 @@ export const CookieBanner: React.FC = () => {
         <button 
           onMouseEnter={handleDeclineHover}
           onClick={() => {
-              alert("Error: Decline button is currently out of stock.");
-              setIsVisible(true); 
+              setIsVisible(false);
           }}
           className="bg-red-500 px-4 py-1 rounded text-sm font-bold absolute transition-transform duration-100 h-8"
           style={{ top: 0 }}

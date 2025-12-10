@@ -3,6 +3,7 @@ import { ProsseedButton } from './components/ProsseedButton';
 import { UnhelpfulChat } from './components/UnhelpfulChat';
 import { CookieBanner } from './components/CookieBanner';
 import { NuclearCodesButton } from './components/NuclearCodesButton';
+import { BackgroundMusic } from './components/BackgroundMusic';
 
 export default function App() {
   const [resetKey, setResetKey] = useState(0);
@@ -29,12 +30,19 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
+  // Background music from YouTube
+  useEffect(() => {
+    // BackgroundMusic component handles this
+  }, []);
+
   return (
     <div 
         key={resetKey}
         className={`min-h-screen ${bgColor} transition-colors duration-1000 overflow-hidden flex flex-col`}
         style={{ transform: `rotate(${rotation}deg)` }}
     >
+      <BackgroundMusic />
+      
       {/* Horrible Marquee */}
       <div className="bg-black text-white p-2 whitespace-nowrap overflow-hidden border-b-4 border-red-600">
          <div className="animate-[marquee_10s_linear_infinite] inline-block text-xl font-mono text-eye-green">

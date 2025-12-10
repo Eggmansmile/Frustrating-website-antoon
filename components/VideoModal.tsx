@@ -1,27 +1,42 @@
 import React, { useState, useEffect } from 'react';
 
-export const VideoModal: React.FC = () => {
-  const [catPosition, setCatPosition] = useState({ x: 0, y: 0 });
-  const [catDirection, setCatDirection] = useState(1); // 1 for right, -1 for left
+interface CatPosition {
+  id: number;
+  x: number;
+  y: number;
+  direction: number;
+}
 
-  // Make cat walk around randomly
+export const VideoModal: React.FC = () => {
+  const [cats, setCats] = useState<CatPosition[]>([
+    { id: 0, x: 0, y: 0, direction: 1 },
+    { id: 1, x: 100, y: 100, direction: -1 },
+    { id: 2, x: 200, y: 200, direction: 1 },
+    { id: 3, x: 300, y: 50, direction: -1 },
+    { id: 4, x: 50, y: 300, direction: 1 },
+  ]);
+
+  // Make cats walk around randomly
   useEffect(() => {
     const moveInterval = setInterval(() => {
-      setCatPosition(prev => {
-        let newX = prev.x + (Math.random() - 0.5) * 100;
-        let newY = prev.y + (Math.random() - 0.5) * 100;
+      setCats(prevCats =>
+        prevCats.map(cat => {
+          let newX = cat.x + (Math.random() - 0.5) * 100;
+          let newY = cat.y + (Math.random() - 0.5) * 100;
 
-        // Keep cat within bounds
-        newX = Math.max(0, Math.min(newX, window.innerWidth - 80));
-        newY = Math.max(0, Math.min(newY, window.innerHeight - 80));
+          // Keep cat within bounds
+          newX = Math.max(0, Math.min(newX, window.innerWidth - 80));
+          newY = Math.max(0, Math.min(newY, window.innerHeight - 80));
 
-        // Random direction change
-        if (Math.random() > 0.5) {
-          setCatDirection(prev => -prev);
-        }
+          // Random direction change
+          let newDirection = cat.direction;
+          if (Math.random() > 0.5) {
+            newDirection = -cat.direction;
+          }
 
-        return { x: newX, y: newY };
-      });
+          return { ...cat, x: newX, y: newY, direction: newDirection };
+        })
+      );
     }, 500);
 
     return () => clearInterval(moveInterval);
@@ -29,17 +44,20 @@ export const VideoModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 overflow-hidden">
-      {/* Walking Cat */}
-      <div
-        className="fixed text-6xl transition-all duration-500"
-        style={{
-          left: `${catPosition.x}px`,
-          top: `${catPosition.y}px`,
-          transform: catDirection === -1 ? 'scaleX(-1)' : 'scaleX(1)',
-        }}
-      >
-        🐱
-      </div>
+      {/* Walking Cats */}
+      {cats.map(cat => (
+        <div
+          key={cat.id}
+          className="fixed text-6xl transition-all duration-500"
+          style={{
+            left: `${cat.x}px`,
+            top: `${cat.y}px`,
+            transform: cat.direction === -1 ? 'scaleX(-1)' : 'scaleX(1)',
+          }}
+        >
+          🐱
+        </div>
+      ))}
 
       {/* Video Container */}
       <div className="bg-white p-8 rounded-lg border-4 border-black shadow-2xl max-w-2xl w-full z-10">
