@@ -20,6 +20,8 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
   const [clickAttempts, setClickAttempts] = useState(0);
   const [shouldShowWaitMessage, setShouldShowWaitMessage] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
+  const [verificationCount, setVerificationCount] = useState(0);
+  const [requiresAction, setRequiresAction] = useState(true);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Randomly move button on hover sometimes
@@ -115,21 +117,23 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
       "ERROR 404: Your motivation not found.",
       "This action is not available in your country. Recalibrating...",
       "Required field missing: Your patience. Please try again.",
+      "Error: The server is currently having a nap. Check back later.",
+      "Warning: This action may cause existential dread.",
+      "CRITICAL: The cake is a lie.",
     ];
 
-    // More aggressive annoying prompts (now 50% chance instead of 30%)
-    if (Math.random() > 0.5) {
-        // Show annoying prompt and deny the click
+    // Extremely aggressive annoying prompts (60% chance now)
+    if (Math.random() > 0.4) {
         const randomPrompt = annoyingPrompts[Math.floor(Math.random() * annoyingPrompts.length)];
         alert(randomPrompt);
         return;
     }
 
-    // Determine number of CAPTCHAs required (2-3)
-    const requiredCaptchas = Math.random() > 0.5 ? 2 : 3;
+    // Determine number of CAPTCHAs required (2-4 now, more than before)
+    const requiredCaptchas = Math.floor(Math.random() * 3) + 2; // 2-4
     
-    // Only 10% chance to actually start loading
-    if (Math.random() > 0.1) {
+    // Only 5% chance to actually start loading (reduced from 10%)
+    if (Math.random() > 0.05) {
       // Show CAPTCHA instead
       setCaptchasRequired(requiredCaptchas);
       setCaptchasCompleted(0);
@@ -138,7 +142,10 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
       return;
     }
 
-    startLoading();
+    // Even if we get past CAPTCHAs, we need verification
+    setRequiresAction(true);
+    setShowCaptcha(false);
+    setShouldShowWaitMessage(false);
   };
 
   const handleCaptchaSuccess = () => {
@@ -146,15 +153,30 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
     setCaptchasCompleted(newCompleted);
 
     if (newCompleted >= captchasRequired) {
-      // Show verification modal before loading
+      // All CAPTCHAs done, ALWAYS show verification before loading
       setShowCaptcha(false);
-      setShowVerification(true);
+      setShouldShowWaitMessage(false);
+      setVerificationCount(prev => prev + 1);
       
-      setTimeout(() => {
-        setShowVerification(false);
-        setShouldShowWaitMessage(false);
-        startLoading();
-      }, 3000);
+      // 30% chance to require another verification after this one
+      if (Math.random() > 0.7 && verificationCount < 2) {
+        // Show verification, then repeat
+        setShowVerification(true);
+        setTimeout(() => {
+          setShowVerification(false);
+          setShowCaptcha(true);
+          setCaptchasRequired(Math.floor(Math.random() * 2) + 1); // 1-2 more CAPTCHAs
+          setCaptchasCompleted(0);
+          setShouldShowWaitMessage(true);
+        }, 14000); // 14 seconds for verification to complete
+      } else {
+        // Show verification, then start loading
+        setShowVerification(true);
+        setTimeout(() => {
+          setShowVerification(false);
+          startLoading();
+        }, 14000); // 14 seconds for verification to complete (10 checks * 1.2 seconds)
+      }
     } else {
       // More CAPTCHAs required
       setShowCaptcha(false);
