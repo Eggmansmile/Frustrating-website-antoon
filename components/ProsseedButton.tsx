@@ -98,25 +98,25 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
       playRandomSound();
       const randomBehavior = Math.random();
       
-      // 20% chance to reset to 0 (increased from 10%)
-      if (randomBehavior < 0.2) {
+      // 10% chance to reset to 0
+      if (randomBehavior < 0.1) {
         progress = 0;
         alert("Loading reset. Starting over...");
         playRandomSound();
       }
-      // 25% chance to jump backwards (increased from 15%)
-      else if (randomBehavior < 0.45) {
-        progress -= Math.random() * 30;
+      // 15% chance to jump backwards
+      else if (randomBehavior < 0.25) {
+        progress -= Math.random() * 20;
         if (progress < 0) progress = 0;
       }
-      // 10% chance to jump forward (decreased from 15%)
-      else if (randomBehavior < 0.55) {
-        progress += Math.random() * 15;
+      // 15% chance to jump forward
+      else if (randomBehavior < 0.4) {
+        progress += Math.random() * 25;
       }
-      // 25% chance to get stuck (increased from 10%)
-      else if (randomBehavior < 0.8) {
+      // 15% chance to get stuck
+      else if (randomBehavior < 0.55) {
         stuckCount++;
-        if (stuckCount > 3) {
+        if (stuckCount > 5) {
           alert("Loading seems to be taking a while... try again?");
           playRandomSound();
           stuckCount = 0;
@@ -125,16 +125,23 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
       }
       // Normal increment
       else {
-        progress += Math.random() * 1; // Reduced increment speed
+        progress += Math.random() * 2; // Increased increment speed
       }
       
-      // Make it harder to reach 100%
-      if (progress > 95) {
-        progress = Math.min(progress, 97); // Cap at 97% for longer
+      // Make it moderately hard to reach 100%
+      if (progress > 98) {
+        progress = Math.min(progress, 99); // Cap at 99% but allow progression
       }
       
-      if (progress > 99) {
-        progress = 99;
+      // 5% chance to reset everything and force retry
+      if (progress > 50 && Math.random() < 0.05) {
+        progress = 0;
+        alert("Connection lost. Please try again.");
+        playRandomSound();
+      }
+      
+      if (progress >= 99) {
+        progress = 100;
         clearInterval(interval);
         playRandomSound();
         
@@ -164,25 +171,25 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
               playRandomSound();
               const randomBehavior = Math.random();
               
-              // 20% chance to reset to 0
-              if (randomBehavior < 0.2) {
+              // 10% chance to reset to 0
+              if (randomBehavior < 0.1) {
                 progress = 0;
                 alert("Loading reset. Starting over...");
                 playRandomSound();
               }
-              // 25% chance to jump backwards
-              else if (randomBehavior < 0.45) {
-                progress -= Math.random() * 30;
+              // 15% chance to jump backwards
+              else if (randomBehavior < 0.25) {
+                progress -= Math.random() * 20;
                 if (progress < 0) progress = 0;
               }
-              // 10% chance to jump forward
-              else if (randomBehavior < 0.55) {
-                progress += Math.random() * 15;
+              // 15% chance to jump forward
+              else if (randomBehavior < 0.4) {
+                progress += Math.random() * 25;
               }
-              // 25% chance to get stuck
-              else if (randomBehavior < 0.8) {
+              // 15% chance to get stuck
+              else if (randomBehavior < 0.55) {
                 stuckCount++;
-                if (stuckCount > 3) {
+                if (stuckCount > 5) {
                   alert("Loading seems to be taking a while... try again?");
                   playRandomSound();
                   stuckCount = 0;
@@ -191,16 +198,23 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
               }
               // Normal increment
               else {
-                progress += Math.random() * 1;
+                progress += Math.random() * 2;
               }
               
-              // Make it harder to reach 100%
-              if (progress > 95) {
-                progress = Math.min(progress, 97);
+              // Make it moderately hard to reach 100%
+              if (progress > 98) {
+                progress = Math.min(progress, 99);
               }
               
-              if (progress > 99) {
-                progress = 99;
+              // 5% chance to reset everything and force retry
+              if (progress > 50 && Math.random() < 0.05) {
+                progress = 0;
+                alert("Connection lost. Please try again.");
+                playRandomSound();
+              }
+              
+              if (progress >= 99) {
+                progress = 100;
                 clearInterval(interval);
                 playRandomSound();
                 
