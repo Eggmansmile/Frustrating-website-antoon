@@ -29,21 +29,6 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
-  // Background music
-  useEffect(() => {
-    const audio = new Audio('./music/Local20-%20Elevator.mp3');
-    audio.loop = true;
-    audio.volume = 0.3;
-    audio.play().catch(() => {
-      // Audio autoplay might be blocked, that's ok
-    });
-
-    return () => {
-      audio.pause();
-      audio.currentTime = 0;
-    };
-  }, []);
-
   return (
     <div 
         key={resetKey}
