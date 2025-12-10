@@ -1,9 +1,37 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CaptchaModal } from './CaptchaModal';
+import { VideoModal } from './VideoModal';
 
 interface ProsseedButtonProps {
   onProsseedAttempt: () => void;
 }
+
+// Sound effect function using Web Audio API
+const playRandomSound = () => {
+  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+  const sounds = [
+    { freq: 800, duration: 0.1 }, // beep
+    { freq: 400, duration: 0.2 }, // low beep
+    { freq: 1200, duration: 0.15 }, // high beep
+    { freq: 600, duration: 0.1 }, // mid beep
+  ];
+  
+  const sound = sounds[Math.floor(Math.random() * sounds.length)];
+  const osc = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  
+  osc.connect(gain);
+  gain.connect(audioContext.destination);
+  
+  osc.frequency.value = sound.freq;
+  osc.type = 'sine';
+  
+  gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + sound.duration);
+  
+  osc.start(audioContext.currentTime);
+  osc.stop(audioContext.currentTime + sound.duration);
+};
 
 export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttempt }) => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -12,6 +40,7 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
   const [loadingPercent, setLoadingPercent] = useState(0);
   const [label, setLabel] = useState("Prosseed");
   const [showCaptcha, setShowCaptcha] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Randomly move button on hover sometimes
@@ -28,6 +57,9 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
 
   const handleClick = () => {
     if (isLoading) return;
+
+    // Play random click sound
+    playRandomSound();
 
     // 40% chance to show CAPTCHA
     if (Math.random() > 0.6) {
@@ -52,6 +84,7 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
         // Random annoying error alert
         const randomPrompt = annoyingPrompts[Math.floor(Math.random() * annoyingPrompts.length)];
         alert(randomPrompt);
+        playRandomSound();
         return;
     }
 
@@ -60,41 +93,54 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
     
     // Start fake loading with random behavior
     let progress = 0;
+    let stuckCount = 0;
     const interval = setInterval(() => {
+      playRandomSound();
       const randomBehavior = Math.random();
       
-      // 10% chance to reset to 0
-      if (randomBehavior < 0.1) {
+      // 20% chance to reset to 0 (increased from 10%)
+      if (randomBehavior < 0.2) {
         progress = 0;
         alert("Loading reset. Starting over...");
+        playRandomSound();
       }
-      // 15% chance to jump backwards
-      else if (randomBehavior < 0.25) {
-        progress -= Math.random() * 20;
+      // 25% chance to jump backwards (increased from 15%)
+      else if (randomBehavior < 0.45) {
+        progress -= Math.random() * 30;
         if (progress < 0) progress = 0;
       }
-      // 15% chance to jump forward significantly
-      else if (randomBehavior < 0.4) {
-        progress += Math.random() * 40;
+      // 10% chance to jump forward (decreased from 15%)
+      else if (randomBehavior < 0.55) {
+        progress += Math.random() * 15;
       }
-      // 10% chance to stay stuck
-      else if (randomBehavior < 0.5) {
+      // 25% chance to get stuck (increased from 10%)
+      else if (randomBehavior < 0.8) {
+        stuckCount++;
+        if (stuckCount > 3) {
+          alert("Loading seems to be taking a while... try again?");
+          playRandomSound();
+          stuckCount = 0;
+        }
         // progress doesn't change
       }
       // Normal increment
       else {
-        progress += Math.random() * 3;
+        progress += Math.random() * 1; // Reduced increment speed
       }
       
-      // Clamp progress
+      // Make it harder to reach 100%
+      if (progress > 95) {
+        progress = Math.min(progress, 97); // Cap at 97% for longer
+      }
+      
       if (progress > 99) {
         progress = 99;
         clearInterval(interval);
+        playRandomSound();
         
-        // Wait a bit at 99%, then crash
+        // Show video instead of reloading
         setTimeout(() => {
-            alert("Rebooting computer give me till the end of the universe");
-            window.location.reload();
+            setShowVideo(true);
         }, 1500);
       }
       
@@ -113,41 +159,54 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
             
             // Start fake loading
             let progress = 0;
+            let stuckCount = 0;
             const interval = setInterval(() => {
+              playRandomSound();
               const randomBehavior = Math.random();
               
-              // 10% chance to reset to 0
-              if (randomBehavior < 0.1) {
+              // 20% chance to reset to 0
+              if (randomBehavior < 0.2) {
                 progress = 0;
                 alert("Loading reset. Starting over...");
+                playRandomSound();
               }
-              // 15% chance to jump backwards
-              else if (randomBehavior < 0.25) {
-                progress -= Math.random() * 20;
+              // 25% chance to jump backwards
+              else if (randomBehavior < 0.45) {
+                progress -= Math.random() * 30;
                 if (progress < 0) progress = 0;
               }
-              // 15% chance to jump forward significantly
-              else if (randomBehavior < 0.4) {
-                progress += Math.random() * 40;
+              // 10% chance to jump forward
+              else if (randomBehavior < 0.55) {
+                progress += Math.random() * 15;
               }
-              // 10% chance to stay stuck
-              else if (randomBehavior < 0.5) {
+              // 25% chance to get stuck
+              else if (randomBehavior < 0.8) {
+                stuckCount++;
+                if (stuckCount > 3) {
+                  alert("Loading seems to be taking a while... try again?");
+                  playRandomSound();
+                  stuckCount = 0;
+                }
                 // progress doesn't change
               }
               // Normal increment
               else {
-                progress += Math.random() * 3;
+                progress += Math.random() * 1;
               }
               
-              // Clamp progress
+              // Make it harder to reach 100%
+              if (progress > 95) {
+                progress = Math.min(progress, 97);
+              }
+              
               if (progress > 99) {
                 progress = 99;
                 clearInterval(interval);
+                playRandomSound();
                 
-                // Wait a bit at 99%, then crash
+                // Show video instead of reloading
                 setTimeout(() => {
-                    alert("Rebooting computer give me till the end of the universe");
-                    window.location.reload();
+                    setShowVideo(true);
                 }, 1500);
               }
               
@@ -157,6 +216,7 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
           onClose={() => setShowCaptcha(false)}
         />
       )}
+      {showVideo && <VideoModal />}
       <button
         ref={buttonRef}
         onMouseEnter={handleHover}
