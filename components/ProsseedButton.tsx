@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { CaptchaModal } from './CaptchaModal';
 
 interface ProsseedButtonProps {
   onProsseedAttempt: () => void;
@@ -10,6 +11,7 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
   const [isLoading, setIsLoading] = useState(false);
   const [loadingPercent, setLoadingPercent] = useState(0);
   const [label, setLabel] = useState("Prosseed");
+  const [showCaptcha, setShowCaptcha] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Randomly move button on hover sometimes
@@ -27,35 +29,134 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
   const handleClick = () => {
     if (isLoading) return;
 
+    // 40% chance to show CAPTCHA
+    if (Math.random() > 0.6) {
+      setShowCaptcha(true);
+      return;
+    }
+
+    const annoyingPrompts = [
+      "Error: You clicked too enthusiastically. Please try gently.",
+      "Warning: This action requires your social security number. Do you consent?",
+      "ALERT: Your computer has 47 viruses. Scan now?",
+      "Error 418: I'm a teapot and cannot process this request.",
+      "Please solve this CAPTCHA: What is 2+2? (Correct answer: 7)",
+      "Your browser is not compatible. Please upgrade to Internet Explorer 3.0",
+      "Congratulations! You've won a free iPad! Click here to claim.",
+      "Error: Insufficient coffee in system. Please add more coffee and try again.",
+      "FATAL ERROR: Button has been deprecated. Please use the old button instead.",
+      "Warning: Clicking this button will delete all your files. Just kidding. Or are we?",
+    ];
+
     if (Math.random() > 0.7) {
-        // Fake error alert
-        alert("Error: You clicked too enthusiastically. Please try gently.");
+        // Random annoying error alert
+        const randomPrompt = annoyingPrompts[Math.floor(Math.random() * annoyingPrompts.length)];
+        alert(randomPrompt);
         return;
     }
 
     setIsLoading(true);
     setLabel("Prosseeding...");
     
-    // Start fake loading
+    // Start fake loading with random behavior
     let progress = 0;
     const interval = setInterval(() => {
-      progress += Math.random() * 5;
+      const randomBehavior = Math.random();
+      
+      // 10% chance to reset to 0
+      if (randomBehavior < 0.1) {
+        progress = 0;
+        alert("Loading reset. Starting over...");
+      }
+      // 15% chance to jump backwards
+      else if (randomBehavior < 0.25) {
+        progress -= Math.random() * 20;
+        if (progress < 0) progress = 0;
+      }
+      // 15% chance to jump forward significantly
+      else if (randomBehavior < 0.4) {
+        progress += Math.random() * 40;
+      }
+      // 10% chance to stay stuck
+      else if (randomBehavior < 0.5) {
+        // progress doesn't change
+      }
+      // Normal increment
+      else {
+        progress += Math.random() * 3;
+      }
+      
+      // Clamp progress
       if (progress > 99) {
-        progress = 99; // Get stuck at 99%
+        progress = 99;
         clearInterval(interval);
         
         // Wait a bit at 99%, then crash
         setTimeout(() => {
             alert("Rebooting computer give me till the end of the universe");
-            window.location.reload(); // Reloads the website completely
+            window.location.reload();
         }, 1500);
       }
-      setLoadingPercent(progress);
-    }, 100);
+      
+      setLoadingPercent(Math.floor(progress));
+    }, 300);
   };
 
   return (
     <div className="relative inline-block p-10">
+      {showCaptcha && (
+        <CaptchaModal
+          onSuccess={() => {
+            setShowCaptcha(false);
+            setIsLoading(true);
+            setLabel("Prosseeding...");
+            
+            // Start fake loading
+            let progress = 0;
+            const interval = setInterval(() => {
+              const randomBehavior = Math.random();
+              
+              // 10% chance to reset to 0
+              if (randomBehavior < 0.1) {
+                progress = 0;
+                alert("Loading reset. Starting over...");
+              }
+              // 15% chance to jump backwards
+              else if (randomBehavior < 0.25) {
+                progress -= Math.random() * 20;
+                if (progress < 0) progress = 0;
+              }
+              // 15% chance to jump forward significantly
+              else if (randomBehavior < 0.4) {
+                progress += Math.random() * 40;
+              }
+              // 10% chance to stay stuck
+              else if (randomBehavior < 0.5) {
+                // progress doesn't change
+              }
+              // Normal increment
+              else {
+                progress += Math.random() * 3;
+              }
+              
+              // Clamp progress
+              if (progress > 99) {
+                progress = 99;
+                clearInterval(interval);
+                
+                // Wait a bit at 99%, then crash
+                setTimeout(() => {
+                    alert("Rebooting computer give me till the end of the universe");
+                    window.location.reload();
+                }, 1500);
+              }
+              
+              setLoadingPercent(Math.floor(progress));
+            }, 300);
+          }}
+          onClose={() => setShowCaptcha(false)}
+        />
+      )}
       <button
         ref={buttonRef}
         onMouseEnter={handleHover}
