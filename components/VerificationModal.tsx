@@ -20,35 +20,31 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isVisible,
   ]);
 
   useEffect(() => {
-    if (!isVisible) {
-      // Reset checks when modal is hidden
-      setChecks((prevChecks) =>
-        prevChecks.map((check) => ({ ...check, status: 'pending' as const }))
-      );
-      return;
-    }
+    if (!isVisible) return;
 
-    let checkIndex = 0;
-    const interval = setInterval(() => {
-      if (checkIndex < 10) { // Hard-code the number instead of using checks.length
+    // Start the verification process
+    for (let i = 0; i < 10; i++) {
+      setTimeout(() => {
         setChecks((prev) => {
           const newChecks = [...prev];
-          newChecks[checkIndex].status = Math.random() > 0.45 ? 'pass' : 'fail';
+          newChecks[i].status = Math.random() > 0.45 ? 'pass' : 'fail';
           return newChecks;
         });
-        checkIndex++;
-      } else {
-        // Close immediately after all checks complete
-        onClose();
-        clearInterval(interval);
-      }
-    }, 400);
 
-    return () => clearInterval(interval);
+        // If this is the last check, close after a short delay
+        if (i === 9) {
+          setTimeout(() => {
+            onClose();
+          }, 200);
+        }
+      }, (i + 1) * 400);
+    }
   }, [isVisible, onClose]);
 
   const passCount = checks.filter((c) => c.status === 'pass').length;
   const allDone = checks.every((c) => c.status !== 'pending');
+
+  if (!isVisible) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40">
