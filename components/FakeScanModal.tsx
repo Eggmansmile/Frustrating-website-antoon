@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface FakeScanModalProps {
   isVisible: boolean;
@@ -8,59 +8,78 @@ interface FakeScanModalProps {
 export const FakeScanModal: React.FC<FakeScanModalProps> = ({ isVisible, onComplete }) => {
   const [scanProgress, setScanProgress] = useState(0);
   const [showDiagnosis, setShowDiagnosis] = useState(false);
+  const [selectedDiagnosis, setSelectedDiagnosis] = useState('');
+  const progressRef = useRef(0);
+  const stepCountRef = useRef(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const scanMessages = [
-    "🔍 Checking your life choices...",
-    "⚠️  Analyzing your frustration levels...",
-    "🔍 Scanning for patience...",
-    "⚠️  WARNING: No patience detected!",
-    "🔍 Running diagnostics on your sanity...",
+    "🔍 Scanning your procrastination levels...",
+    "⚠️  Analyzing your study habits...",
+    "🔍 Checking how many assignments you've ignored...",
+    "⚠️  WARNING: Deadline in 24 hours!",
+    "🔍 Running diagnostics on your GPA...",
   ];
 
   const diagnoses = [
-    "🚨 CRITICAL: User is too determined. Recommend immediate distraction.",
-    "⚠️  ALERT: Patience levels dangerously low. Continuing anyway.",
-    "🔴 ERROR: User has clicked through 3+ CAPTCHAs. System confused.",
-    "💥 FATAL: Button evasion has been defeated. Abandoning protocols.",
-    "😈 DIAGNOSIS: User refuses to give up. We like this one.",
-    "🎯 ALERT: User clicking with intent. This is unusual.",
-    "🤖 NOTE: AI has determined you are either very bored or very spiteful.",
+    "🚨 CRITICAL: Student attempting to avoid studying. Resistance futile.",
+    "📚 ALERT: Academic integrity check FAILED. Homework still overdue!",
+    "🔴 ERROR: Found 47 unread class emails. System overwhelmed.",
+    "💥 FATAL: Procrastination levels have exceeded maximum. No recovery possible.",
+    "🎓 DIAGNOSIS: User is a professional procrastinator. No cure found.",
+    "⏰ NOTE: Time management skills = 0%. All hope is lost.",
+    "📖 SCAN COMPLETE: Your textbooks are gathering dust. Very efficient.",
   ];
 
   useEffect(() => {
     if (!isVisible) {
       setScanProgress(0);
+      setShowDiagnosis(false);
+      progressRef.current = 0;
+      stepCountRef.current = 0;
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
       return;
     }
 
     setScanProgress(0);
-    let progress = 0;
-    let stepCount = 0;
+    setShowDiagnosis(false);
+    progressRef.current = 0;
+    stepCountRef.current = 0;
     
     // Scan takes ~7 seconds (35 steps of 200ms each)
-    const interval = setInterval(() => {
-      stepCount++;
+    intervalRef.current = setInterval(() => {
+      stepCountRef.current += 1;
       const randomBehavior = Math.random();
       
       if (randomBehavior < 0.1) {
         // 10% chance to jump backward
-        progress = Math.max(0, progress - Math.random() * 5);
+        progressRef.current = Math.max(0, progressRef.current - Math.random() * 5);
       } else if (randomBehavior < 0.2) {
         // 10% chance to jump forward
-        progress += Math.random() * 8;
+        progressRef.current += Math.random() * 8;
       } else {
         // 80% normal progress
-        progress += Math.random() * 3;
+        progressRef.current += Math.random() * 3;
       }
       
       // Allow progress to go beyond 98
-      progress = Math.min(progress, 99);
-      setScanProgress(Math.floor(progress));
+      progressRef.current = Math.min(progressRef.current, 99);
+      const newProgress = Math.floor(progressRef.current);
+      setScanProgress(newProgress);
       
       // Force completion after 35 steps (~7 seconds)
-      if (stepCount >= 35 || progress >= 99) {
-        clearInterval(interval);
+      if (stepCountRef.current >= 35 || progressRef.current >= 99) {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
         setScanProgress(100);
+        // Pick random diagnosis and store it
+        const randomIndex = Math.floor(Math.random() * diagnoses.length);
+        setSelectedDiagnosis(diagnoses[randomIndex]);
         setShowDiagnosis(true);
         
         // Show diagnosis for 2 seconds then complete
@@ -70,11 +89,20 @@ export const FakeScanModal: React.FC<FakeScanModalProps> = ({ isVisible, onCompl
       }
     }, 200);
 
-    return () => clearInterval(interval);
-  }, [isVisible, onComplete]);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [isVisible]);
 
   const currentMessage = scanMessages[Math.floor((scanProgress / 100) * (scanMessages.length - 1))];
-  const randomDiagnosis = diagnoses[Math.floor(Math.random() * diagnoses.length)];
+
+  // Don't render if not visible
+  if (!isVisible) {
+    return null;
+  }
 
   // Show diagnosis screen if scan is complete
   if (showDiagnosis) {
@@ -85,7 +113,7 @@ export const FakeScanModal: React.FC<FakeScanModalProps> = ({ isVisible, onCompl
             📋 FINAL DIAGNOSIS 📋
           </div>
           <div className="text-sm text-red-400 mb-4">
-            {randomDiagnosis}
+            {selectedDiagnosis}
           </div>
           <div className="text-xs text-eye-green opacity-75">
             Proceeding with extreme caution...

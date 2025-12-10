@@ -36,9 +36,9 @@ export const CaptchaModal: React.FC<CaptchaModalProps> = ({ onSuccess, onClose }
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white p-8 rounded-lg border-4 border-black shadow-2xl max-w-sm w-full">
-        <h2 className="text-2xl font-bold mb-4 text-center">Please verify you're human</h2>
+        <h2 className="text-2xl font-bold mb-4 text-center">📚 Student Verification</h2>
         <p className="text-center text-gray-600 mb-6">
-          Solve this incredibly difficult math problem to continue:
+          Solve this math problem (it's harder than your finals!):
         </p>
         
         <div className="bg-gray-100 p-4 rounded border-2 border-gray-300 mb-4 text-center">
