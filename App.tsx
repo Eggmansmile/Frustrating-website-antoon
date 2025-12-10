@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ProsseedButton } from './components/ProsseedButton';
 import { UnhelpfulChat } from './components/UnhelpfulChat';
 import { CookieBanner } from './components/CookieBanner';
+import { NuclearCodesButton } from './components/NuclearCodesButton';
 
 export default function App() {
   const [resetKey, setResetKey] = useState(0);
@@ -83,6 +84,7 @@ export default function App() {
       </footer>
 
       {/* Frustration Components */}
+      <NuclearCodesButton />
       <CookieBanner />
       <UnhelpfulChat />
 

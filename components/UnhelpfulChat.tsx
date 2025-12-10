@@ -30,7 +30,13 @@ export const UnhelpfulChat: React.FC = () => {
       "Have you tried turning your house off and on again?",
       "You need to fill out Form 27B/6 first (which doesn't exist).",
       "I'm sorry, I couldn't process that request because the wind is blowing east.",
-      "That's not a supported operation. Please contact support (support hotline is closed permanently)."
+      "That's not a supported operation. Please contact support (support hotline is closed permanently).",
+      "Please hold while I ignore your request...",
+      "I'm experiencing technical difficulties. Please try again never.",
+      "Your request has been denied for reasons unknown even to me.",
+      "I'm just a bot, what do you expect?",
+      "404 Help Not Found.",
+      "Please join our flat earth society for better assistance: https://www.facebook.com/groups/2205176794.",
     ];
     const botResponse = unhelpfulResponses[Math.floor(Math.random() * unhelpfulResponses.length)];
     

@@ -15,16 +15,16 @@ export const CookieBanner: React.FC = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-8 z-30 flex flex-col items-center justify-center gap-4 opacity-95">
-      <h3 className="text-2xl font-bold text-pain-yellow blink">WE VALUE YOUR PRIVACY (NOT REALLY)</h3>
-      <p className="text-center max-w-2xl">
+    <div className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-3 z-30 flex flex-col items-center justify-center gap-2 opacity-95">
+      <h3 className="text-sm font-bold text-pain-yellow">WE VALUE YOUR PRIVACY (NOT REALLY)</h3>
+      <p className="text-center max-w-2xl text-xs">
         We use cookies to ensure you have the most frustrating experience possible. 
         By clicking "Accept", you agree to give us your soul. By clicking "Decline", you admit defeat.
       </p>
-      <div className="flex gap-10 mt-4 relative w-full justify-center h-20">
+      <div className="flex gap-6 mt-2 relative w-full justify-center h-12">
         <button 
           onClick={() => alert("Great choice! We have now installed 100 toolbars.")}
-          className="bg-green-500 px-6 py-2 rounded font-bold hover:bg-green-600 h-10"
+          className="bg-green-500 px-4 py-1 rounded text-sm font-bold hover:bg-green-600 h-8"
         >
           Accept All Cookies 🍪
         </button>
@@ -35,7 +35,7 @@ export const CookieBanner: React.FC = () => {
               alert("Error: Decline button is currently out of stock.");
               setIsVisible(true); 
           }}
-          className="bg-red-500 px-6 py-2 rounded font-bold absolute transition-transform duration-100 h-10"
+          className="bg-red-500 px-4 py-1 rounded text-sm font-bold absolute transition-transform duration-100 h-8"
           style={{ top: 0 }}
         >
           {hoverCount > 5 ? "Just Click Accept!" : "Decline"}
