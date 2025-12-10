@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 export const BackgroundMusic: React.FC = () => {
   useEffect(() => {
     const audio = new Audio();
-    // File is in public/music folder, which gets copied to the build
+    // File is in public/music folder, which gets served at the root
     audio.src = '/Frustrating-website-antoon/music/Local20-%20Elevator.mp3';
     audio.loop = true;
     audio.volume = 0.3;
