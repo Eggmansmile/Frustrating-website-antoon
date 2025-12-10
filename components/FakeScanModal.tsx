@@ -78,14 +78,14 @@ export const FakeScanModal: React.FC<FakeScanModalProps> = ({ isVisible, onCompl
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40 pointer-events-none">
-      <div className="bg-gray-900 border-4 border-eye-green p-6 rounded font-mono text-eye-green w-2xl max-h-96 overflow-y-auto shadow-2xl flex flex-col">
-        <div className="text-center font-bold mb-4 text-lg animate-pulse flex-shrink-0">
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-40 pointer-events-auto">
+      <div className="bg-gray-900 border-4 border-eye-green p-6 rounded font-mono text-eye-green w-full max-w-2xl h-96 shadow-2xl flex flex-col">
+        <div className="text-center font-bold mb-4 text-lg animate-pulse flex-shrink-0 whitespace-nowrap">
           ⚙️ SYSTEM DIAGNOSTIC SCAN ⚙️
         </div>
-        <div className="space-y-1 text-sm flex-1 overflow-y-auto min-h-0 pr-2">
+        <div className="space-y-0 text-sm flex-1 overflow-y-auto min-h-0 pr-2">
           {displayedItems.map((item, index) => (
-            <div key={index} className="animate-pulse break-words">
+            <div key={index} className="animate-pulse break-words leading-tight py-0.5">
               {item}
             </div>
           ))}
@@ -95,7 +95,7 @@ export const FakeScanModal: React.FC<FakeScanModalProps> = ({ isVisible, onCompl
             </div>
           )}
         </div>
-        <div className="mt-4 text-xs text-red-500 animate-pulse text-center flex-shrink-0">
+        <div className="mt-4 text-xs text-red-500 animate-pulse text-center flex-shrink-0 whitespace-nowrap">
           {displayedItems.length < SCAN_ITEMS.length 
             ? `Scanning... ${Math.floor((displayedItems.length / SCAN_ITEMS.length) * 100)}%`
             : 'Scan complete!'}
