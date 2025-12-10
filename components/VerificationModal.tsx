@@ -20,14 +20,19 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isVisible,
   ]);
 
   useEffect(() => {
-    if (!isVisible) return;
+    if (!isVisible) {
+      // Reset checks when modal is hidden
+      setChecks((prevChecks) =>
+        prevChecks.map((check) => ({ ...check, status: 'pending' as const }))
+      );
+      return;
+    }
 
     let checkIndex = 0;
     const interval = setInterval(() => {
-      if (checkIndex < checks.length) {
+      if (checkIndex < 10) { // Hard-code the number instead of using checks.length
         setChecks((prev) => {
           const newChecks = [...prev];
-          // 55% pass, 45% fail for more chaos
           newChecks[checkIndex].status = Math.random() > 0.45 ? 'pass' : 'fail';
           return newChecks;
         });
@@ -37,7 +42,7 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isVisible,
         onClose();
         clearInterval(interval);
       }
-    }, 400); // Each check takes only 400ms (was 1200ms)
+    }, 400);
 
     return () => clearInterval(interval);
   }, [isVisible, onClose]);
