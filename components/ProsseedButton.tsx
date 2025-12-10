@@ -119,8 +119,8 @@ export const ProsseedButton: React.FC<ProsseedButtonProps> = ({ onProsseedAttemp
         progress += Math.random() * 4;
       }
       
-      // Still hard but reachable
-      if (progress > 95) {
+      // Still hard but reachable - only cap at 98 if not trying to complete
+      if (progress > 95 && progress < 99) {
         progress = Math.min(progress, 98);
       }
       
